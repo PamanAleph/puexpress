@@ -1,7 +1,6 @@
 <?php
   include 'controller.php';
   if (isset($_POST ['submit'])) {
-    echo"<script>alert('data msuk')</script>";
     //sender
     $sendername = $_POST['sendername'];
     $senderphonenumber = $_POST['senderphonenumber'];
@@ -12,6 +11,14 @@
     $recipientphonenumber = $_POST['recipientphonenumber'];
     $recipientemail = $_POST['recipientemail'];
     $recipientdropoff = $_POST['recipientdropoff'];
+    //item
+    $itemname = $_POST['itemname'];
+    $itemtype = $_POST['itemtype'];
+    $itemdate = $_POST['itemdate'];
+    $itemweight = $_POST['itemweight'];
+    $iteminsurance = $_POST['iteminsurance'];
+    //servicetype
+    $servicesname = $_POST['servicesname'];
 
 
     query("INSERT into sender (sender_name,sender_number,sender_email,sender_pickup) 
@@ -22,9 +29,15 @@
     values ('$recipientname',$recipientphonenumber,'$recipientemail','$recipientdropoff')"
     );
 
-    query("INSERT into item (recipient_name,recipient_number,recipient_email,recipient_dropoff) 
-    values ('$recipientname',$recipientphonenumber,'$recipientemail','$recipientdropoff')"
+    query("INSERT into item (item_name,item_type,item_date,item_weight,item_insurance) 
+    values ('$itemname','$itemtype','$itemdate',$itemweight,'$iteminsurance')"
     );
+
+    query("INSERT into services (services_name) 
+    values ('$servicesname')"
+    );
+
+    header ("Location: adminpanel.php");
   
 }
 
@@ -46,9 +59,6 @@
 
 </head>
 <body>
-  <?php
-    var_dump($_POST);
-  ?>
 
       <!-- component -->
 <section class="max-w-4xl p-6 mx-auto bg-indigo-600 rounded-md shadow-md dark:bg-gray-800 mt-20">
@@ -111,12 +121,12 @@
         <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
             <div>
                 <label class="text-white dark:text-gray-200" for="username">Name</label>
-                <input id="packageweight" type="text" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
+                <input name="itemname" id="packageweight" type="text" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
             </div>
 
             <div>
                 <label class="text-white dark:text-gray-200" for="passwordConfirmation">Item Type</label>
-                <select class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
+                <select name="itemtype" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
                     <option>Goods</option>
                     <option>Document</option>
                 </select>
@@ -124,22 +134,36 @@
 
             <div>
                 <label class="text-white dark:text-gray-200" for="senderdate">Date</label>
-                <input id="senderdate" type="date" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
+                <input name="itemdate" id="itemdate" type="date" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
             </div>
 
             <div>
                 <label class="text-white dark:text-gray-200" for="username">Weight</label>
-                <input id="packageweight" type="int" placeholder="kg"class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
+                <input name="itemweight" id="itemweight" type="int" placeholder="kg"class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
             </div>
-        </div>
+          </div>
 
 
-        <div class="flex items-center mt-4">
-          <input id="link-checkbox" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-          <label for="link-checkbox" class="ml-2 text-sm font-medium text-white dark:text-gray-200">Insurance ?</label>
+            <div>
+                <label class="text-white dark:text-gray-200" for="passwordConfirmation">Item Insurance</label>
+                <select name="iteminsurance" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </div>
+            <div>
+            <label for="services" class="text-white dark:text-gray-200" for="passwordConfirmation">Services</label>
+              <select name="servicesname" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
+                <option selected>PU EZ</option>
+                <option value="US">PU ECO</option>
+                <option value="CA">PU SUPER</option>
+              </select>
+            </div>
         </div>
              
         <div class="flex justify-end mt-6">
+          <a href ="/delivery/adminpanel.php">
+            <button class="px-6 py-2 leading-5 text-white transition-colors duration-200 transform bg-pink-500 rounded-md hover:bg-pink-700 focus:outline-none focus:bg-gray-600">Back</button></a>
             <button class="px-6 py-2 leading-5 text-white transition-colors duration-200 transform bg-pink-500 rounded-md hover:bg-pink-700 focus:outline-none focus:bg-gray-600" name="submit" type="submit">Create Order</button>
         </div>
     </form>
