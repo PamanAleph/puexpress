@@ -8,9 +8,11 @@ create table sender (
 create table recipient (
         recipient_id int (12) primary key auto_increment,
         recipient_name varchar (100),
-        recipient_address varchar (100),
+        destination_id  int (12),
         recipient_pnumber varchar (100),
-        recipient_email varchar (100)
+        recipient_email varchar (100),
+        foreign key (destination_id) references destination (destination_id)
+
 );
 create table destination(
         destination_id int (12) primary key auto_increment,

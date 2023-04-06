@@ -18,7 +18,7 @@
       WHERE orders_id=$_GET[orders_id]");
     }
 
-    header ("Location: orderdetailcourier.php");  }
+    header ("Location: orderdetails.php");  }
 ?>
 
 <!DOCTYPE html>
@@ -59,11 +59,11 @@
                     <!-- ITEM -->
                     <div class="mb-6">
                         <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Item Status</label>
-                        <input name="orderstatus" value="<?=($data != null ? $data['orders_status'] : '')?>" id="orderstatus" type="text" placeholder="ON process/DELIVERED" class="uppercase bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                        <input name="orderstatus" value="<?=($data != null ? $data['orders_status'] : '')?>" id="orderstatus" type="text" placeholder="PROCESS/DELIVERED" class="uppercase bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                     </div>
-                    <a href ="validatecourier.php?orders_id=<?=$data['orders_id'];?>">    
-                <button class="w-full bg-purple-500 py-3 text-center text-white" name="submit" type="submit" >Upload</button>
-                </a>
+                    <a href ="validateadmin.php?orders_id=<?=$data['orders_id'];?>">    
+                <button class="w-full bg-purple-500 py-3 text-center text-white" name="submit" type="submit" >VALIDATE</button> 
+              </a>
             </form>
           </div>
         </div>

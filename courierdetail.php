@@ -27,6 +27,7 @@ if (isset($_POST ['edit'])) {
       WHERE courier_id=$courier_id"
   );
   
+  delete("DELETE FROM courier WHERE courier_id = $courier_id");
 
   header ("Location: courierdetail.php");
   }

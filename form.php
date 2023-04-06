@@ -15,7 +15,6 @@
     $recipientname = $_POST['recipientname'];
     $recipientpnumber = $_POST['recipientpnumber'];
     $recipientemail = $_POST['recipientemail'];
-    $recipientdropoff = $_POST['recipientdropoff'];
     //item
     $itemname = $_POST['itemname'];
     $itemtype = $_POST['itemtype'];
@@ -23,7 +22,7 @@
     $iteminsurance = $_POST['iteminsurance'];
     //servicesname
     $servicesid = (int) $_POST['servicesid'];
-    $destinationid = (int) $_POST['recipientdropoff'];
+    $destinationid = (int) $_POST['destinationid'];
     //orders
     $orderstatus = $_POST['orderstatus'] ? strtoupper($_POST['orderstatus']) : '';
 
@@ -31,8 +30,8 @@
     values ('$sendername',$senderpnumber,'$senderemail','Warehouse')"
     );
 
-    $recipientid = insert("INSERT into recipient (recipient_name,recipient_pnumber,recipient_email,recipient_dropoff) 
-    values ('$recipientname',$recipientpnumber,'$recipientemail','$recipientdropoff')"
+    $recipientid = insert("INSERT into recipient (recipient_name,recipient_pnumber,recipient_email,destination_id) 
+    values ('$recipientname',$recipientpnumber,'$recipientemail',$destinationid)"
     );
     
     $itemid = insert("INSERT into item (item_name,item_type,item_weight,item_insurance) 
@@ -56,6 +55,8 @@
       query("UPDATE orders set orders_status = '$orderstatus'
       WHERE orders_id=$_GET[orders_id]");
     }
+
+    header ("Location: orderdetails.php");
   }
 ?>
 
@@ -105,7 +106,7 @@
 
                     <div class="mb-6">
                         <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone Number</label>
-                        <input name="senderpnumber" placeholder="+628" id="senderphonenumber" type="bigint"  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                        <input name="senderpnumber" placeholder="628" id="senderphonenumber" type="bigint"  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                     </div>
 
                     <div class="mb-6">
@@ -130,7 +131,7 @@
 
                     <div class="mb-6">
                         <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone Number</label>
-                        <input name="recipientpnumber" placeholder="+628" id="recipientphonenumber" type="bigint"  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                        <input name="recipientpnumber" placeholder="628" id="recipientphonenumber" type="bigint"  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                     </div>
 
                     <div class="mb-6">
@@ -140,7 +141,7 @@
 
                     <div class="mb-6">
                     <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Drop Off</label>
-                        <select data-te-select-init name="recipientdropoff" id="recipientropoff">
+                        <select data-te-select-init name="destinationid" id="destinationid">
                             <option value = "7000001">SBH</option>
                             <option value = "7000002">NBH</option>
                             <option value = "7000003">Elvis</option>
@@ -186,7 +187,7 @@
                     </div>
                     <div class="mb-6">
                         <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Item Status</label>
-                        <input name="orderstatus" value="<?=($data != null ? $data['orders_status'] : '')?>" id="orderstatus" type="text" placeholder="ON PROCCESS/DELIVERED" class="uppercase bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                        <input name="orderstatus" value="<?=($data != null ? $data['orders_status'] : '')?>" id="orderstatus" type="text" placeholder="PROCESS/DELIVERED" class="uppercase bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                     </div>
                 <button class="w-full bg-purple-500 py-3 text-center text-white" name="submit" type="submit" >Upload</button>
             </form>

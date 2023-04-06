@@ -33,7 +33,7 @@
 
                 <div class="p-4 bg-yellow-100 rounded-xl text-gray-800">
                   <?php
-                      $query = "SELECT COUNT(recipient_dropoff) as total FROM recipient where recipient_dropoff = 'SBH'";
+                      $query = "SELECT COUNT(destination_id) as total FROM recipient where destination_id = 7000001";
                                 $result = mysqli_query($conn, $query);
                       $data = mysqli_fetch_assoc($result); 
                   ?>
@@ -45,7 +45,7 @@
 
                 <div class="p-4 bg-yellow-100 rounded-xl text-gray-800">
                   <?php
-                      $query = "SELECT COUNT(recipient_dropoff) as total FROM recipient where recipient_dropoff = 'NBH'";
+                      $query = "SELECT COUNT(destination_id) as total FROM recipient where destination_id = 7000002";
                                 $result = mysqli_query($conn, $query);
                       $data = mysqli_fetch_assoc($result); 
                   ?>
@@ -57,7 +57,7 @@
 
                   <div class="p-4 bg-yellow-100 rounded-xl text-gray-800">
                   <?php
-                      $query = "SELECT COUNT(recipient_dropoff) as total FROM recipient where recipient_dropoff = 'Elvis'";
+                      $query = "SELECT COUNT(destination_id) as total FROM recipient where destination_id = 7000003";
                                 $result = mysqli_query($conn, $query);
                       $data = mysqli_fetch_assoc($result); 
                   ?>
@@ -67,33 +67,28 @@
               </div>
             </div>
             <div>
-              <h2 class="text-2xl font-bold mb-4">Chart</h2>
+              <h2 class="text-2xl font-bold mb-4">Orders Status</h2>
 
               <div class="space-y-4">
                 <div class="p-4 bg-white border rounded-xl text-gray-800 space-y-2">
-                  <script>
-                    const config = {
-                      type: 'pie',
-                      data: data,
-                    };
-                    const data = {
-                    labels: [
-                      'Red',
-                      'Blue',
-                      'Yellow'
-                    ],
-                    datasets: [{
-                      label: 'My First Dataset',
-                      data: [300, 50, 100],
-                      backgroundColor: [
-                        'rgb(255, 99, 132)',
-                        'rgb(54, 162, 235)',
-                        'rgb(255, 205, 86)'
-                      ],
-                      hoverOffset: 4
-                    }]
-                  };
-                    </script>
+
+                <div class="p-4 bg-yellow-100 rounded-xl text-gray-800">
+                  <?php
+                      $query = "SELECT COUNT(orders_status) as total FROM orders where orders_status = 'DELIVERED'";
+                                $result = mysqli_query($conn, $query);
+                      $data = mysqli_fetch_assoc($result); 
+                  ?>
+                  <h4 class="font-bold text-2xl leading-none"><?= $data['total']; ?></h4>
+                      <div class="mt-2">DELIVERED</div>
+                  </div><div class="p-4 bg-yellow-100 rounded-xl text-gray-800">
+                  <?php
+                      $query = "SELECT COUNT(orders_status) as total FROM orders where orders_status = 'PROCESS'";
+                                $result = mysqli_query($conn, $query);
+                      $data = mysqli_fetch_assoc($result); 
+                  ?>
+                  <h4 class="font-bold text-2xl leading-none"><?= $data['total']; ?></h4>
+                      <div class="mt-2">PROCESS</div>
+                  </div>
 
               </div>
             </div>
