@@ -1,49 +1,63 @@
 <?php
   include 'controller.php';
+  $data = null;
+   if (isset($_GET ['orders_id'])) {
+    $data = display("SELECT * FROM orders WHERE orders_id = $_GET[orders_id]")[0];
+  }
+
   if (isset($_POST ['submit'])) {
     //sender
     $sendername = $_POST['sendername'];
-    $senderphonenumber = $_POST['senderphonenumber'];
+    $senderpnumber = $_POST['senderpnumber'];
     $senderemail = $_POST['senderemail'];
-    $senderpickup = $_POST['senderpickup'];
+    // $senderpickup = $_POST['senderpickup'];
     //recipient
     $recipientname = $_POST['recipientname'];
-    $recipientphonenumber = $_POST['recipientphonenumber'];
+    $recipientpnumber = $_POST['recipientpnumber'];
     $recipientemail = $_POST['recipientemail'];
     $recipientdropoff = $_POST['recipientdropoff'];
     //item
     $itemname = $_POST['itemname'];
     $itemtype = $_POST['itemtype'];
-    $itemdate = $_POST['itemdate'];
     $itemweight = $_POST['itemweight'];
     $iteminsurance = $_POST['iteminsurance'];
-    //servicetype
-    $servicesname = $_POST['servicesname'];
+    //servicesname
+    $servicesid = (int) $_POST['servicesid'];
+    $destinationid = (int) $_POST['recipientdropoff'];
+    //orders
+    $orderstatus = $_POST['orderstatus'] ? strtoupper($_POST['orderstatus']) : '';
 
-
-    query("INSERT into sender (sender_name,sender_number,sender_email,sender_pickup) 
-    values ('$sendername',$senderphonenumber,'$senderemail','$senderpickup')"
+    $senderid = insert("INSERT into sender (sender_name,sender_pnumber,sender_email,sender_address) 
+    values ('$sendername',$senderpnumber,'$senderemail','Warehouse')"
     );
 
-    query("INSERT into recipient (recipient_name,recipient_number,recipient_email,recipient_dropoff) 
-    values ('$recipientname',$recipientphonenumber,'$recipientemail','$recipientdropoff')"
+    $recipientid = insert("INSERT into recipient (recipient_name,recipient_pnumber,recipient_email,recipient_dropoff) 
+    values ('$recipientname',$recipientpnumber,'$recipientemail','$recipientdropoff')"
+    );
+    
+    $itemid = insert("INSERT into item (item_name,item_type,item_weight,item_insurance) 
+    values ('$itemname','$itemtype',$itemweight,'$iteminsurance')");
+
+    $courierid = display("SELECT courier_id from courier where destination_id = $destinationid") [0]['courier_id'] ;
+    
+    $prices = display("SELECT services_price + (0.1 *services_price * item_weight) as total FROM services 
+    JOIN item on item_id=$itemid WHERE services_id = $servicesid");
+
+    $total = (int) $prices[0]['total'];
+
+    query("INSERT INTO orders (sender_id,recipient_id,courier_id,item_id,services_id,destination_id,orders_price,orders_status)
+    values ($senderid,$recipientid,$courierid,$itemid,$servicesid,$destinationid,$total,'$orderstatus')"
     );
 
-    query("INSERT into item (item_name,item_type,item_date,item_weight,item_insurance) 
-    values ('$itemname','$itemtype','$itemdate',$itemweight,'$iteminsurance')"
-    );
+    $orderid = mysqli_insert_id($conn);
 
-    query("INSERT into services (services_name) 
-    values ('$servicesname')"
-    );
-
-    header ("Location: adminpanel.php");
-  
-}
-
+     if (isset($_GET ['orders_id'])) {
+      //update
+      query("UPDATE orders set orders_status = '$orderstatus'
+      WHERE orders_id=$_GET[orders_id]");
+    }
+  }
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -54,120 +68,138 @@
     <title>Create Order</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:ital@1&display=swap" rel="stylesheet">
-	  <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
-	  <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.3.5/dist/alpine.min.js" defer></script>
-
+	<link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.3.5/dist/alpine.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tw-elements/dist/css/index.min.css" />
+    <script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      fontFamily: {
+        sans: ["Roboto", "sans-serif"],
+        body: ["Roboto", "sans-serif"],
+        mono: ["ui-monospace", "monospace"],
+      },
+    },
+    corePlugins: {
+      preflight: false,
+    },
+  };
+</script>
 </head>
-<body>
+  <body>
+  <?php include 'sidebar.php'?>
 
-      <!-- component -->
-<section class="max-w-4xl p-6 mx-auto bg-indigo-600 rounded-md shadow-md dark:bg-gray-800 mt-20">
-    <h1 class="text-xl font-bold text-white capitalize dark:text-white">Sender Information</h1>
-    <form method="post">
-        <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
-            <div>
-                <label class="text-white dark:text-gray-200" for="sendername">Name</label>
-                <input name="sendername" id="sendername" type="text" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
-            </div>
+  <main class="ml-60 pt-16 max-h-screen overflow-auto">
+    <div class="px-6 py-8 bg-yellow-50">
+      <div class="max-w-4xl mx-auto bg-white rounded-3xl">
+          <div class="w-full lg:w-1/2 py-16 px-12 ">
+            <h2  class="text-3xl mb-4">Sender</h2>
+            <form method="post">
+                    <!-- sender -->
 
-            <div>
-                <label class="text-white dark:text-gray-200" for="senderphonenumber">Phone Number</label>
-                <input name="senderphonenumber" id="senderphonenumber" type="int" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
-            </div>
+                    <div class="mb-6">
+                        <label for="sendername" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Full Name</label>
+                        <input name="sendername"  id="sendername" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                    </div>
 
-            <div>
-                <label class="text-white dark:text-gray-200" for="senderemail">Email</label>
-                <input name="senderemail" id="senderemail" type="email" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
-            </div>
-            <div>
-                <label class="text-white dark:text-gray-200" for="senderpickup">Pick Up</label>
-                <select name="senderpickup" id="senderpickup" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
-                    <option>SBH</option>
-                    <option>NBH</option>
-                    <option>Mak Yes</option>
-                    <option>Campus</option>
-                </select>
-            </div>
-        </div>
+                    <div class="mb-6">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone Number</label>
+                        <input name="senderpnumber" placeholder="+628" id="senderphonenumber" type="bigint"  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                    </div>
 
-        
-        <h1 class="mt-4 text-xl font-bold text-white capitalize dark:text-white">Recipient Information</h1>
-        <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
-            <div>
-                <label class="text-white dark:text-gray-200" for="recipientname">Name</label>
-                <input name="recipientname" id="recipientname" type="text" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
-            </div>
+                    <div class="mb-6">
+                        <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                        <input name="senderemail" id="senderemail" type="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@google.com" required>
+                    </div>
 
-            <div>
-                <label class="text-white dark:text-gray-200" for="recipientphonenumber">Phone Number</label>
-                <input name="recipientphonenumber" id="recipientphonenumber" type="int" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
-            </div>
+                    <!-- <div class="mb-6">
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Pick Up</label>
+                        <select data-te-select-init name="senderpickup" id="senderpickup">
+                            <option>SBH</option>
+                        </select>
+                    </div> -->
 
-            <div>
-                <label class="text-white dark:text-gray-200" for="recipientemail">Email</label>
-                <input name="recipientemail" id="recipientemail" type="email" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
-            </div>
-            <div>
-                <label class="text-white dark:text-gray-200" for="recipientropoff">Drop Off</label>
-                <select name="recipientdropoff" id="recipientropoff" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
-                    <option>SBH</option>
-                    <option>NBH</option>
-                    <option>Mak Yes</option>
-                    <option>Campus</option>
-                </select>
-            </div>
-        </div>
-        <h1 class="mt-4 text-xl font-bold text-white capitalize dark:text-white">Package Information</h1>
-        <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
-            <div>
-                <label class="text-white dark:text-gray-200" for="username">Name</label>
-                <input name="itemname" id="packageweight" type="text" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
-            </div>
+                    <!-- Recipient -->
 
-            <div>
-                <label class="text-white dark:text-gray-200" for="passwordConfirmation">Item Type</label>
-                <select name="itemtype" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
-                    <option>Goods</option>
-                    <option>Document</option>
-                </select>
-            </div>
+                    <h2  class="text-3xl mb-4">Recipient</h2>
+                    <div class="mb-6">
+                        <label for="recipientname" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Full Name</label>
+                        <input name="recipientname" id="recipientname" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                    </div>
 
-            <div>
-                <label class="text-white dark:text-gray-200" for="senderdate">Date</label>
-                <input name="itemdate" id="itemdate" type="date" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
-            </div>
+                    <div class="mb-6">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone Number</label>
+                        <input name="recipientpnumber" placeholder="+628" id="recipientphonenumber" type="bigint"  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                    </div>
 
-            <div>
-                <label class="text-white dark:text-gray-200" for="username">Weight</label>
-                <input name="itemweight" id="itemweight" type="int" placeholder="kg"class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
-            </div>
+                    <div class="mb-6">
+                        <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                        <input name="recipientemail" id="recipientemail" type="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@google.com" required>
+                    </div>
+
+                    <div class="mb-6">
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Drop Off</label>
+                        <select data-te-select-init name="recipientdropoff" id="recipientropoff">
+                            <option value = "7000001">SBH</option>
+                            <option value = "7000002">NBH</option>
+                            <option value = "7000003">Elvis</option>
+                        </select>
+                    </div>
+
+                    <!-- ITEM -->
+                    <h2  class="text-3xl mb-4">Package Information</h2>
+
+                    <div class="mb-6">
+                        <label for="recipientname" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Item Name</label>
+                        <input name="itemname" type="text" id="itemname" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Weight</label>
+                        <input name="itemweight" id="itemweight" type="int" placeholder="kg" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Item Type</label>
+                             <select data-te-select-init name="itemtype">
+                                <option>Goods</option>
+                                <option>Document</option>
+                            </select>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Item Insurance</label>
+                             <select data-te-select-init name="iteminsurance">
+                                <option>Yes</option>
+                                <option>No</option>
+                            </select>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Services</label>
+                             <select data-te-select-init name="servicesid">
+                                <option value="5000001">PU EZ</option>
+                                <option value="5000002">PU ECO</option>
+                                <option value="5000003">PU SUPER</option>
+                                <option value="5000004">PU Sameday</option>
+                                <option value="5000005">PU Instant</option>
+                            </select>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Item Status</label>
+                        <input name="orderstatus" value="<?=($data != null ? $data['orders_status'] : '')?>" id="orderstatus" type="text" placeholder="ON PROCCESS/DELIVERED" class="uppercase bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                    </div>
+                <button class="w-full bg-purple-500 py-3 text-center text-white" name="submit" type="submit" >Upload</button>
+            </form>
           </div>
-
-
-            <div>
-                <label class="text-white dark:text-gray-200" for="passwordConfirmation">Item Insurance</label>
-                <select name="iteminsurance" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
-                    <option>Yes</option>
-                    <option>No</option>
-                </select>
-            </div>
-            <div>
-            <label for="services" class="text-white dark:text-gray-200" for="passwordConfirmation">Services</label>
-              <select name="servicesname" class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
-                <option selected>PU EZ</option>
-                <option value="US">PU ECO</option>
-                <option value="CA">PU SUPER</option>
-              </select>
-            </div>
         </div>
-             
-        <div class="flex justify-end mt-6">
-          <a href ="/delivery/adminpanel.php">
-            <button class="px-6 py-2 leading-5 text-white transition-colors duration-200 transform bg-pink-500 rounded-md hover:bg-pink-700 focus:outline-none focus:bg-gray-600">Back</button></a>
-            <button class="px-6 py-2 leading-5 text-white transition-colors duration-200 transform bg-pink-500 rounded-md hover:bg-pink-700 focus:outline-none focus:bg-gray-600" name="submit" type="submit">Create Order</button>
-        </div>
-    </form>
-</section>
-
+      </div>
+    </div>
+</div>
+</div>
+</main>
+    <script type="module" src="/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tw-elements/dist/js/index.min.js"></script>
+  </body>
+</html>
 </body>
 </html>

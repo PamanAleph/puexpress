@@ -1,98 +1,138 @@
 <?php
+include 'controller.php';
   error_reporting(0);
   if (isset($_POST['login'])){
     $user = $_POST ['username'];
     $pass = $_POST ['password'];
 
-    if ($user === 'admin' AND $pass === 'admin'){
-
+    if ($user === 'admin' AND $pass === 'admin') {
       session_start();
-      $_SESSION ['success'] = true;
+      $_SESSION['success'] = true;
+      header("Location: adminsite.php");
 
-      header ("Location: adminpanel.php");
+  } elseif (isset($_POST['login'])){
+    $user = $_POST ['courier_name'];
+    $pass = $_POST ['courier_id'];
 
-    } else{
-      echo "<div role='alert'>
-        <div class='bg-red-500 text-white font-bold rounded-t px-4 py-2'>
-          Danger
-        </div>
-        <div class='border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700'>
-          <p>Something not ideal might be happening.</p>
-        </div>
-      </div>";
+    query("SELECT * FROM courier where courier_name = '$user' and courier_id = '$pass'");{
+      session_start();
+      $_SESSION['success'] = true;
+      header("Location: orderdetailcourier.php");
     }
-  }
+  } else if (isset($_POST['back'])) {
+    header("Location: index2.html");
 
+  } else {
+      echo "<div role='alert'>
+          <div class='bg-red-500 text-white font-bold rounded-t px-4 py-2'>
+              Danger
+          </div>
+          <div class='border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700'>
+              <p>Something not ideal might be happening.</p>
+          </div>
+      </div>";
+  } 
+} 
 ?>
 
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Site</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FONTS -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/ionicons@4.5.10-0/dist/ionicons.js"></script>
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>PresUniv Express</title>
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
 
-<body>
-    <!-- component -->
-<link rel="stylesheet" href="https://kit-pro.fontawesome.com/releases/v5.15.1/css/pro.min.css" />
-<div class = "bg-yellow-100 h-screen">
+    <link rel="stylesheet" href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css"/>
+    <!--Replace with your tailwind.css once created-->
+    <link href="https://unpkg.com/@tailwindcss/custom-forms/dist/custom-forms.min.css" rel="stylesheet" />
 
-<div class="min-h-screen flex flex-col items-center justify-center">
-  <div class="flex flex-col bg-white shadow-md px-4 sm:px-6 md:px-8 lg:px-10 py-8 rounded-md w-full max-w-md">
-    <div class="font-medium self-center text-xl sm:text-2xl uppercase text-gray-800">Login Admin</div>
-    <div class="mt-10">
-      <form action="#" method="post">
-        <div class="flex flex-col mb-6">
-          <label for="username" class="mb-1 text-xs sm:text-sm tracking-wide text-gray-600">Username:</label>
-          <div class="relative">
-            <div class="inline-flex items-center justify-center absolute left-0 top-0 h-full w-10 text-gray-400">
-              <svg class="h-6 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
-                <path d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-              </svg>
-            </div>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
 
-            <input id="text" type="text" name="username" class="text-sm sm:text-base placeholder-gray-500 pl-10 pr-4 rounded-lg border border-gray-400 w-full py-2 focus:outline-none focus:border-blue-400" placeholder="Username" />
-          </div>
+      html {
+        font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+      }
+    </style>
+  </head>
+
+  <body class="leading-normal tracking-normal text-indigo-400 m-6 bg-cover bg-fixed" style="background-image: url('/delivery/test/header.png');">
+    <div class="h-full pr-10 pl-10">
+      <!--Nav-->
+      <div class="w-full container mx-auto">
+        <div class="w-full flex items-center justify-between">
+          <a class="flex items-center text-indigo-400 no-underline hover:no-underline font-bold text-2xl lg:text-4xl" href="/delivery/loginadmin.php">
+            PresUniv <span class="bg-clip-text text-transparent bg-gradient-to-r from-green-400 via-pink-500 to-purple-500"> Express</span>
+          </a>
+
         </div>
-        <div class="flex flex-col mb-6">
-          <label for="password" class="mb-1 text-xs sm:text-sm tracking-wide text-gray-600">Password:</label>
-          <div class="relative">
-            <div class="inline-flex items-center justify-center absolute left-0 top-0 h-full w-10 text-gray-400">
-              <span>
-                <svg class="h-6 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
-                  <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </span>
-            </div>
+      </div>
 
-            <input id="password" type="password" name="password" class="text-sm sm:text-base placeholder-gray-500 pl-10 pr-4 rounded-lg border border-gray-400 w-full py-2 focus:outline-none focus:border-blue-400" placeholder="Password" />
-          </div>
-        </div>
-
-
-        <div class="flex w-full">
-          <button type="submit" name="login" class="flex items-center justify-center focus:outline-none text-white text-sm sm:text-base bg-blue-600 hover:bg-blue-700 rounded py-2 w-full transition duration-150 ease-in">
-            <span class="mr-2 uppercase">Login</span>
-            <span>
-              <svg class="h-6 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
-                <path d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+      <!--Main-->
+      <div class="container pt-24 md:pt-24 mx-auto flex flex-wrap flex-col md:flex-row items-center">
+        <!--Left Col-->
+        <div class="flex flex-col w-full xl:w-2/5 justify-center lg:items-start overflow-y-hidden">
+          <h1 class="my-4 text-3xl md:text-5xl text-white opacity-75 font-bold leading-tight text-center md:text-left">
+            Login
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-green-400 via-pink-500 to-purple-500">
+              Admin
             </span>
-          </button>
+          </h1>
+
+          <form class="mt-16 bg-gray-900 opacity-75 w-full shadow-lg rounded-lg px-8 pt-6 pb-8 mb-4" method="post">
+            <div class="mb-4">
+              <label class="block text-blue-300 py-2 font-bold mb-2" for="username" name="">
+                Username
+              </label>
+              <input
+                class="shadow appearance-none border rounded w-full p-3 text-gray-700 leading-tight focus:ring transform transition hover:scale-105 duration-300 ease-in-out"
+                id="emailaddress"
+                type="text"
+                name = "username"
+              />
+            </div>
+            <div class="mb-4">
+              <label class="block text-blue-300 py-2 font-bold mb-2" for="emailaddress">
+                Password
+              </label>
+              <input
+                class="shadow appearance-none border rounded w-full p-3 text-gray-700 leading-tight focus:ring transform transition hover:scale-105 duration-300 ease-in-out"
+                id="password"
+                type="password"
+                name = "password"
+              />
+            </div>
+
+            <div class="flex items-center justify-between pt-4">
+              <button
+                class="bg-gradient-to-r from-purple-800 to-green-500 hover:from-pink-500 hover:to-green-500 text-white font-bold py-2 px-4 rounded focus:ring transform transition hover:scale-105 duration-300 ease-in-out"
+                type="submit"
+                name="login"
+              >
+                Login
+              </button>
+                <a href ="index.php"
+                  class="bg-gradient-to-r from-purple-800 to-green-500 hover:from-pink-500 hover:to-green-500 text-white font-bold py-2 px-4 rounded focus:ring transform transition hover:scale-105 duration-300 ease-in-out"
+                  type="submit"
+                  name="back"
+                >
+                  Back
+                </a>
+              
+              </div>
+          </form>
+          
         </div>
-      </form>
+
+        <!--Right Col-->
+        <div class="w-full xl:w-3/5 p-12 overflow-hidden">
+          <!-- <img class="mx-auto w-full md:w-4/5 transform -rotate-6 transition hover:scale-105 duration-700 ease-in-out hover:rotate-6" src="macbook.svg" /> -->
+        </div>
+
+      </div>
     </div>
-    
-</div>
-</div>
-</body>
+  </body>
 </html>
